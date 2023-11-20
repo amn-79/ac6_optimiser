@@ -1,0 +1,7 @@
+# What are we ignoring
+*.txt
+.idea
+__pycache__
+build/app
+*.ui
+*.spec
