@@ -1,6 +1,0 @@
-Testing gridwalker aerial speed vs gills ground boost:
-Upwards speed seems roughly 5-10 slower than equivalent ground boost, consistently. Idk
-
-The command is pyuic6 -o main_window_ui.py AC6_Opti_modern.ui
-
-Now also tracked on github!
