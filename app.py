@@ -28,11 +28,12 @@ class Window(QMainWindow, Ui_MainWindow):
         for i in range(0, len(add_data[0])):
             if add_data[0][i]["Weapon Type"] != "Melee":
                 weapon_list_r.append(add_data[0][i])
-        back_list_l = add_data[1]
+        back_list_l = add_data[1] + add_data[0]
         back_list_r = []
         for i in range(0, len(add_data[1])):
             if add_data[1][i]["Weapon Type"] != "Shield":
                 back_list_r.append(add_data[1][i])
+        back_list_r = back_list_r + weapon_list_r
         fcs_list = add_data[2]
         option_list = [weapon_list_r, weapon_list_l, back_list_r, back_list_l, fcs_list]
 
@@ -275,12 +276,14 @@ class Window(QMainWindow, Ui_MainWindow):
         back_list_l = []
         for i in range(0, len(add_data[1])):
             back_list_l.append(add_data[1][i]["Part name"])
+        back_list_l = back_list_l + weapon_list_l
         self.LeftBack.addItems(back_list_l)
 
         back_list_r = []
         for i in range(0, len(add_data[1])):
             if add_data[1][i]["Weapon Type"] != "Shield":
                 back_list_r.append(add_data[1][i]["Part name"])
+        back_list_r = back_list_r + weapon_list_r
         self.RightBack.addItems(back_list_r)
 
         fcs_list = []
