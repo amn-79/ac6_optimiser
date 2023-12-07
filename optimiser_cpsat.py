@@ -71,6 +71,7 @@ def ac6_opti(input_data, selection_list):
 
     opti_target = selection_list[33]
     arm_weapon_weight = selection_list[34]
+    leg_type_force = selection_list[35]
 
     model = cp_model.CpModel()
     data_pd = pd.DataFrame.from_records(frame_data)
@@ -134,6 +135,16 @@ def ac6_opti(input_data, selection_list):
     # Melee Spec Minimum
     if melee_spec_enforce:
         model.Add(data_pd["Melee Specialization"].dot(x) >= melee_spec_enforce_no)
+
+    # Enforced leg type:
+    if leg_type_force == "Biped":
+        model.Add(sum(x[min(legs_range):max(legs_range) - 7]) == 1)
+    elif leg_type_force == "Reverse Joint":
+        model.Add(sum(x[max(legs_range) - 7:max(legs_range) - 4]) == 1)
+    elif leg_type_force == "Quad":
+        model.Add(sum(x[max(legs_range)-4:max(legs_range)-2]) == 1)
+    elif leg_type_force == "Tank":
+        model.Add(sum(x[max(legs_range)-2:max(legs_range)+1]) == 1)
 
     # Leg load limit
     if load_override is False:
@@ -220,12 +231,12 @@ def ac6_opti(input_data, selection_list):
 
     # Print solution.
     if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        print(f"Target = {solver.ObjectiveValue()}\n")
-        print(arm_weapon_weight)
+        print(f"Target = {solver.ObjectiveValue()}")
         selected = data_pd.loc[solver.BooleanValues(x).loc[lambda x: x].index]
         opti_list = list(selected.index)
         for unused_index, row in selected.iterrows():
             print(f"{row['Part type']}: {row['Part name']}")
+        print("\n")
     else:
         print("No solution found.")
         opti_list = "Error"

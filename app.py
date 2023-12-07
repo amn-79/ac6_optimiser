@@ -98,9 +98,11 @@ class Window(QMainWindow, Ui_MainWindow):
         selection_list.append(self.LoadOverride.isChecked())
 
         selection_list.append(self.OptiTargetSelect.currentIndex())
-        # Ooops
+        # Adding arm load (of weapons)
         arm_weight = int(option_list[0][data_list[0]]["Weight"]) + int(option_list[1][data_list[1]]["Weight"])
         selection_list.append(arm_weight)
+        # Adding leg type selection
+        selection_list.append(self.LegTypeSelect.currentText())
 
         return selection_list
 
@@ -176,15 +178,11 @@ class Window(QMainWindow, Ui_MainWindow):
         self.out_MeleeSpec.setText(str(melee_spec))
         self.out_FASpec.setText(str(firearm_spec))
 
-
-
-
         return
 
 
     def run_optimiser(self):
         self.opti_list = ac6_opti(self.opti_data, self.get_current_selection_opti())
-        print(self.opti_list)
         if self.opti_list == "Error":
             winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
         else:
@@ -294,6 +292,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.CoreExp.addItems(["Pulse Armour", "Pulse Protection", "Assault Armour", "Terminal Armour"])
 
         self.OptiTargetSelect.addItems(["Maximise average EHP", "Maximise kinetic EHP", "Maximise energy EHP", "Maximise explosive EHP", "Maximise AP", "Maximise AS", "Minimise Weight", "Maximise Weight"])
+        self.LegTypeSelect.addItems(["Any", "Biped", "Reverse Joint", "Quad", "Tank"])
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

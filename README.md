@@ -3,7 +3,8 @@ If you just want the download, it's the .exe in the build folder. If you want to
 
 Mostly feature complete if a bit slow if few restrictions are placed on it. Planning to add:
 - Constraint on boost speed (mostly understand how the game works, just not sure how to implement it into the program)
-- Drop-down selection menu for leg types (Biped/RJ/Tank/Quad) and generators (Normal/Coral)
+- Would like to add assault boost speed, but not sure about the formula (Need to check regulations)
+- Drop-down selection menu generators (Normal/Coral) perhaps, similar to leg types
 - Some of the displayed stats are not rounded bc I couldn't be bothered
 - Ultimately, I want this to be a web app so people don't have to download strange .exes. I'd have to learn Flask (probably?) and HTML for that though, so it'll take time
 
