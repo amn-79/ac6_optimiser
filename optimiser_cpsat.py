@@ -138,11 +138,11 @@ def ac6_opti(input_data, selection_list):
 
     # Enforced leg type:
     if leg_type_force == "Biped":
-        model.Add(sum(x[min(legs_range):max(legs_range) - 7]) == 1)
+        model.Add(sum(x[min(legs_range):max(legs_range) - 8]) == 1)
     elif leg_type_force == "Reverse Joint":
-        model.Add(sum(x[max(legs_range) - 7:max(legs_range) - 4]) == 1)
+        model.Add(sum(x[max(legs_range) - 8:max(legs_range) - 5]) == 1)
     elif leg_type_force == "Quad":
-        model.Add(sum(x[max(legs_range)-4:max(legs_range)-2]) == 1)
+        model.Add(sum(x[max(legs_range)-5:max(legs_range)-2]) == 1)
     elif leg_type_force == "Tank":
         model.Add(sum(x[max(legs_range)-2:max(legs_range)+1]) == 1)
 

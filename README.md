@@ -1,5 +1,6 @@
 # AC6 Optimiser
-(Not updated to 1.05 yet)
+Update version: Patch 1.05, App Ver 50
+(Note: Data on Coral shield outdated. Doesn't matter for optimising since Weight/EN Load are unchanged, but careful if you use the .csv files in this repository for reference purposes)
 
 If you just want the download, it's the .exe in the build folder. If you want to make sure this doesn't install a bitcoin miner, look at the source code and build it yourself (I just use pyinstaller).
 
