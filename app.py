@@ -1,12 +1,63 @@
 import sys
+import threading
+import pyqtgraph as pg
 from data_import import data_importer
 from data_import import data_importer_noopt
 from optimiser_cpsat import ac6_opti
 import winsound
 
-from PyQt6.QtWidgets import (QApplication, QMainWindow)
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton)
 
 from main_window_ui import Ui_MainWindow
+
+
+
+class AreaSearchWindow(QMainWindow):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Area Search")
+        # Temperature vs time plot
+        self.plot_graph = pg.plot()
+        self.plot_graph.showGrid(x=True, y=True)
+        self.plot_graph.setTitle("Target vs Weight")
+        layout = QVBoxLayout()
+        layout.addWidget(self.plot_graph)
+        new_button = QPushButton()
+        new_button.setText("Run Area search")
+        new_button.clicked.connect(self.button_clicked)
+        layout.addWidget(new_button)
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+    def button_clicked(self):
+        # I'm only doing weight stuff today, idc.
+        # Both of the below call on the instance that's created at the end, not the general class, but should be fine
+        self.curr_select = win.get_current_selection_opti()
+        self.opti_data_ref = win.opti_data
+        weight_limit_list = []
+        selection_list = []
+        if hasattr(self, 'line'):
+            self.line.clear()
+        if self.curr_select[14] == 1 and self.curr_select[15] != "":
+            self.curr_select[15] = int(self.curr_select[15])
+            baseval = self.curr_select[15] - 5000
+            for modifier in range(0, 11):
+                self.curr_select[15] = baseval + modifier * 1000
+                weight_limit_list.append(self.curr_select[15])
+                try:
+                    selection_list.append(ac6_opti(self.opti_data_ref, self.curr_select)[6])
+                except IndexError:
+                    selection_list.append(0)
+                    print(f"No solution found for weight limit of {self.curr_select[15]}")
+            self.line = self.plot_graph.plot(weight_limit_list, selection_list)
+        else:
+            print("Please input a relevant weight limit and enable the restriction")
+            threading.Thread(
+                target=lambda: winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
+            ).start()
+
 
 
 class Window(QMainWindow, Ui_MainWindow):
@@ -17,6 +68,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.w = None
         self.setupUi(self)
         self.setWindowTitle("Armored Core VI - Optimizer")
         self.populate_lists(self.list_data, self.add_data)
@@ -169,9 +221,9 @@ class Window(QMainWindow, Ui_MainWindow):
         self.out_Weight.setText(str(weight))
         self.out_EN.setText(str(en_load) + " / " + str(en_load_max))
         self.out_EN_Cap.setText(str(en_capacity))
-        self.out_Kinetic.setText(str(kinetic_ehp))
-        self.out_Energy.setText(str(energy_ehp))
-        self.out_Explosive.setText(str(explosive_ehp))
+        self.out_Kinetic.setText(str(round(kinetic_ehp)))
+        self.out_Energy.setText(str(round(energy_ehp)))
+        self.out_Explosive.setText(str(round(explosive_ehp)))
         self.out_RecoilRight.setText(recoil_right)
         self.out_RecoilLeft.setText(recoil_left)
         self.out_EnergySpec.setText(str(energy_spec))
@@ -184,7 +236,9 @@ class Window(QMainWindow, Ui_MainWindow):
     def run_optimiser(self):
         self.opti_list = ac6_opti(self.opti_data, self.get_current_selection_opti())
         if self.opti_list == "Error":
-            winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
+            threading.Thread(
+                target=lambda: winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS)
+            ).start()
         else:
             # Head
             self.out_Head.setText(self.list_data[0][self.opti_list[0]]["Part name"])
@@ -214,6 +268,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
             self.set_stats()
 
+            return self.opti_list
+
     def connectSignalSlots(self):
         self.actionExit.triggered.connect(self.close)
         self.actionOpti.triggered.connect(self.run_optimiser)
@@ -228,6 +284,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.Legs_Select.currentIndexChanged.connect(self.set_stats)
         self.Gen.currentIndexChanged.connect(self.set_stats)
         self.Boost.currentIndexChanged.connect(self.set_stats)
+        self.actionAreaSearch.triggered.connect(self.area_search_activate)
 
     def populate_lists(self, data, add_data):
         head_list = []
@@ -293,6 +350,14 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self.OptiTargetSelect.addItems(["Maximise average EHP", "Maximise kinetic EHP", "Maximise energy EHP", "Maximise explosive EHP", "Maximise AP", "Maximise AS", "Minimise Weight", "Maximise Weight"])
         self.LegTypeSelect.addItems(["Any", "Biped", "Reverse Joint", "Quad", "Tank"])
+
+    def area_search_activate(self):
+        if self.w is None:
+            self.w = AreaSearchWindow()
+        self.w.show()
+        self.w.activateWindow()
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

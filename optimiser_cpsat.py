@@ -234,6 +234,7 @@ def ac6_opti(input_data, selection_list):
         print(f"Target = {solver.ObjectiveValue()}")
         selected = data_pd.loc[solver.BooleanValues(x).loc[lambda x: x].index]
         opti_list = list(selected.index)
+        opti_list.append(solver.ObjectiveValue())
         for unused_index, row in selected.iterrows():
             print(f"{row['Part type']}: {row['Part name']}")
         print("\n")
