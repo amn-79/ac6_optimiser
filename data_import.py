@@ -9,7 +9,7 @@ def data_importer():
     head_data = list(csv.DictReader(file, delimiter=","))
     file.close()
 
-    path_to_cores = path.join(bundle_dir, 'AC6 - Trimmed down - BODYS.csv')
+    path_to_cores = path.join(bundle_dir, 'AC6 - Trimmed down - CORES.csv')
     file = open(path_to_cores, "r")
     body_data = list(csv.DictReader(file, delimiter=","))
     file.close()

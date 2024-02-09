@@ -1,9 +1,11 @@
 # AC6 Optimiser
-Update version: Patch 1.05, App Ver 50
+Update version: Patch 1.06.1, App Ver 60
 
 If you just want the download, it's the .exe in the build folder. If you want to make sure this doesn't install a bitcoin miner, look at the source code and build it yourself (I just use pyinstaller).
 
-Mostly feature complete if a bit slow if few restrictions are placed on it. Planning to add:
+Mostly feature complete if a bit slow if few restrictions are placed on it. 
+
+I'm probably not developing this further since my interest has waned. Possible extensions would be:
 - I am aware of formulas for all sorts of speed (boost, AB, QB, Tetra Hover, Tank travel etc), but need to implement them
 - Ultimately, I would like this to be a web app so people don't have to download strange .exes. I'd have to learn Flask (probably?) and HTML for that though, so it'll take time
 
