@@ -1,7 +1,12 @@
 # AC6 Optimiser
-Update version: Patch 1.06.1, App Ver 60
+Update version: Patch 1.07, App Ver 70
 
-If you just want the download, it's the .exe in the build folder. If you want to make sure this doesn't install a bitcoin miner, look at the source code and build it yourself (I just use pyinstaller).
+# Updates
+Changed data files due to new patch
+Added app spec to repository to make building it yourself easier
+
+# Notes
+Build uses pyinstaller. Simply run "pyinstaller app.spec", or alternatively download the prebuilt .exe.
 
 Mostly feature complete if a bit slow if few restrictions are placed on it. 
 
