@@ -206,6 +206,31 @@ def ac6_opti(input_data, selection_list):
     model.Add(sum_of_ehp == kinetic_ehp + energy_ehp + explosive_ehp + data_pd["AP"].dot(x))
     model.AddDivisionEquality(overall_ehp, sum_of_ehp, 4)
 
+    # Boost speed implementation
+
+    # Define constraint variables for the different types of speed
+    # Need to do this in terms of thrust since optimiser only supports integers and no rounding methods in its constraints
+    # ...Actually, need to scale the values up intensely. Base thrust goes up to ~8k, then increase by a factor of
+    # roundabout 100*1/10*10^5*10^6 -> 10^12? Should work. So domain goes from 4*10^15 to 9*10^15
+    boost_speed_thrust = model.NewIntVar(0, 6800, 'boost_speed_thrust')
+    # Define constraint variable for weight
+    total_weight = model.NewIntVar(0,2000000, 'total_weight')
+    model.Add(total_weight == data_pd["Weight"].dot(x) + weapon_weight)
+    # Define constraint bool variables for the weight breakpoints:
+    # Boost Speed, QB speed, and Melee Lunge Speed: 40k, 50k, 62.5k, 75k, 80k (diff multipliers though)
+    # AB Speed: 40k, 50k, 75k, 100k
+    # Tetrapod Hover Speed: 70k, 90k, 100k, 110k
+    # Tank travel speed: 50k, 75k, 100k, 110k
+    # Fortaleza tank travel speed: 50k, 62.5k, 75k, 100k
+
+    # So in total want 40k, 50k, 62.5k, 70k, 75k, 80k, 90k, 100k, 110k
+
+    weight_bracket_1 = model.NewBoolVar('weight_bracket_1')
+    model.Add(total_weight <= 40000).OnlyEnforceIf(weight_bracket_1)
+    model.Add(total_weight > 40000).OnlyEnforceIf(weight_bracket_1.Not())
+
+    model.Add(boost_speed_thrust >= data_pd["Thrust"].dot(x)).OnlyEnforceIf(weight_bracket_1)
+
     # Create objective function
     if opti_target == 0:
         model.Maximize(overall_ehp)

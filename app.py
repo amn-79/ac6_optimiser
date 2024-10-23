@@ -164,6 +164,9 @@ class Window(QMainWindow, Ui_MainWindow):
         # Second list is the extra lists for weapons, that are partially used.
         option_list = self.list_maker(self.add_data)
         # All the other stuff is saved in the class above, under self.list_data
+        # Meaning: All the stuff below takes the full lists of equipment (from list-data or option_list) and selects the
+        # relevant item by picking the element equal to the selection (from current_selected), and the data point is
+        # called with the dict key of the name of the statistic
         weight = int(option_list[0][current_selected[0]]["Weight"]) + int(
             option_list[1][current_selected[1]]["Weight"]) + int(
             option_list[2][current_selected[2]]["Weight"]) + int(option_list[3][current_selected[3]]["Weight"]) + int(
@@ -204,6 +207,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.list_data[2][current_selected[7]]["Anti-Explosive Defense"]) + int(
             self.list_data[3][current_selected[8]]["Anti-Explosive Defense"])
         explosive_ehp = ap / ((2000 - explosive_def)/1000)
+        overall_ehp = (ap + kinetic_ehp + energy_ehp + explosive_ehp) / 4
         if option_list[0][current_selected[0]]["Recoil"] == "" or option_list[0][current_selected[0]]["Rapid Fire"] == "":
             recoil_right = "Unclear"
         else:
@@ -215,6 +219,45 @@ class Window(QMainWindow, Ui_MainWindow):
         energy_spec = int(self.list_data[4][current_selected[9]]["Energy Firearm Spec."])
         melee_spec = int(self.list_data[2][current_selected[7]]["Melee Specialization"])
         firearm_spec = int(self.list_data[2][current_selected[7]]["Firearm Specialization"])
+        recoil_control = int(self.list_data[2][current_selected[7]]["Recoil Control"])
+        sys_recovery = int(self.list_data[0][current_selected[5]]["System Recovery"])
+        jump_height = int(self.list_data[3][current_selected[8]]["Jump Height"])
+        jump_dist = int(self.list_data[3][current_selected[8]]["Jump Distance"])
+
+        # Boost Speed and ascent speed can be combined:
+        if weight <= 40000:
+            weight_multi = 1
+        elif weight <= 62500:
+            weight_multi = (1 - (weight - 40000) * (30/9) * 10**(-6))
+        elif weight <= 75000:
+            weight_multi = (0.925 - (weight - 62500) * 0.000006)
+        elif weight <= 80000:
+            weight_multi = (0.85 - (weight - 75000) * 0.000015)
+        elif weight <= 120000:
+            weight_multi = (0.775 - (weight - 80000) * 0.000003125)
+        else:
+            weight_multi = 0.65
+
+        boost_speed = round(int(self.list_data[5][current_selected[10]]["Thrust"]) * 0.06 * weight_multi)
+        ascent_speed = round(int(self.list_data[5][current_selected[10]]["Upward Thrust"]) * 0.06 * weight_multi)
+
+        if weight <= 40000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06)
+        elif weight <= 62500:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (1 - (weight - 40000) * (20/9) * 10**(-6)))
+        elif weight <= 75000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.925 - (weight - 62500) * 0.000008))
+        elif weight <= 80000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.85 - (weight - 75000) * 0.00002))
+        elif weight <= 120000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.775 - (weight - 80000) * 0.0000025))
+        else:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * 0.65)
+
+        # TODO
+        # AB speed, AB cost and seconds of boost, QB cost and no. of boosts, tetra hover speed and tank travel speed
+        # Alter tank thrust in the spreadsheet. Also check back on QB multi!
+
 
         self.out_AP.setText(str(ap))
         self.out_Attitude.setText(str(attitude))
@@ -224,11 +267,20 @@ class Window(QMainWindow, Ui_MainWindow):
         self.out_Kinetic.setText(str(round(kinetic_ehp)))
         self.out_Energy.setText(str(round(energy_ehp)))
         self.out_Explosive.setText(str(round(explosive_ehp)))
+        self.out_OverallEHP.setText(str(round(overall_ehp)))
         self.out_RecoilRight.setText(recoil_right)
         self.out_RecoilLeft.setText(recoil_left)
         self.out_EnergySpec.setText(str(energy_spec))
         self.out_MeleeSpec.setText(str(melee_spec))
+        self.out_RecoilCont.setText(str(recoil_control))
         self.out_FASpec.setText(str(firearm_spec))
+        self.out_SysRec.setText(str(sys_recovery))
+        self.out_JumpHeight.setText(str(jump_height))
+        self.out_JumpDist.setText(str(jump_dist))
+        self.out_BoostSpd.setText(str(boost_speed))
+        self.out_AscentSpd.setText(str(ascent_speed))
+        self.out_MeleeSpd.setText(str(melee_lunge_speed))
+
 
         return
 
