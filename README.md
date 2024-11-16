@@ -1,12 +1,18 @@
 # AC6 Optimiser
-Update version: Patch 1.07, App Ver 70
+Update version: Patch 1.07.1, App Ver 70
 
 With thanks to u/Quimperinos, whose AC6 Virtual Garage spreadsheet gave me the speed formulae, and u/TraumaHunter, who created the spreadsheet that my data is based on
 
 # Updates
-## tbd
+## 16/11/2024
+- Updated data files to new patch
 - Added speed optimisation
 - Changed UI to show more information, new optimisation options
+  - Added lock-on time for hard lock (soft lock is one third of hard lock time, roughly)
+  - Added recharge delay for normal and redline recharge
+  - Added system recovery
+  - Added speed statistics for a bunch of movement types
+- Deprecated firearm spec and free EN minimum for better options (actual target tracking, actual EN recharge speed)
 - Renamed area search to interval search
 
 ## 20/09/2024
