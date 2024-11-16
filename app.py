@@ -131,8 +131,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         selection_list.append(self.WeightMax.isChecked())
         selection_list.append(self.WeightMax_line.text())
-        selection_list.append(self.ENMin.isChecked())
-        selection_list.append(self.ENMin_line.text())
+        selection_list.append(self.ENRecMin.isChecked())
+        selection_list.append(self.ENRecMin_line.text())
         selection_list.append(self.APMin.isChecked())
         selection_list.append(self.APMin_line.text())
         selection_list.append(self.ASMin.isChecked())
@@ -143,8 +143,8 @@ class Window(QMainWindow, Ui_MainWindow):
         selection_list.append(self.EnergyFASpecMin_line.text())
         selection_list.append(self.RecoilMin.isChecked())
         selection_list.append(self.RecoilMin_line.text())
-        selection_list.append(self.FASpecMin.isChecked())
-        selection_list.append(self.FASpecMin_line.text())
+        selection_list.append(self.TargetTrackMin.isChecked())
+        selection_list.append(self.TargetTrackMin_line.text())
         selection_list.append(self.MeleeSpecMin.isChecked())
         selection_list.append(self.MeleeSpecMin_line.text())
         selection_list.append(self.LoadOverride.isChecked())
@@ -155,6 +155,18 @@ class Window(QMainWindow, Ui_MainWindow):
         selection_list.append(arm_weight)
         # Adding leg type selection
         selection_list.append(self.LegTypeSelect.currentText())
+        # Adding new opti targets (update Nov 24)
+        selection_list.append(self.GenTypeSelect.currentText())
+        selection_list.append(self.SysRecMin.isChecked())
+        selection_list.append(self.SysRecMin_line.text())
+        selection_list.append(self.BoostSpdMin.isChecked())
+        selection_list.append(self.BoostSpdMin_line.text())
+        selection_list.append(self.ABSpdMin.isChecked())
+        selection_list.append(self.ABSpdMin_line.text())
+        selection_list.append(self.TravelSpdMin.isChecked())
+        selection_list.append(self.TravelSpdMin_line.text())
+        selection_list.append(self.HoverSpdMin.isChecked())
+        selection_list.append(self.HoverSpdMin_line.text())
 
         return selection_list
 
@@ -164,6 +176,9 @@ class Window(QMainWindow, Ui_MainWindow):
         # Second list is the extra lists for weapons, that are partially used.
         option_list = self.list_maker(self.add_data)
         # All the other stuff is saved in the class above, under self.list_data
+        # Meaning: All the stuff below takes the full lists of equipment (from list-data or option_list) and selects the
+        # relevant item by picking the element equal to the selection (from current_selected), and the data point is
+        # called with the dict key of the name of the statistic
         weight = int(option_list[0][current_selected[0]]["Weight"]) + int(
             option_list[1][current_selected[1]]["Weight"]) + int(
             option_list[2][current_selected[2]]["Weight"]) + int(option_list[3][current_selected[3]]["Weight"]) + int(
@@ -182,6 +197,9 @@ class Window(QMainWindow, Ui_MainWindow):
             self.list_data[3][current_selected[8]]["EN Load"]) + int(self.list_data[5][current_selected[10]]["EN Load"])
         en_load_max = int(int(self.list_data[1][current_selected[6]]["Generator Output Adj."]) / 100 * int(self.list_data[4][current_selected[9]]["EN Output"]))
         en_capacity = int(self.list_data[4][current_selected[9]]["EN Capacity"])
+        en_recharge = int(4.166 * (en_load_max - en_load) + 1500)
+        recharge_delay = float(float(self.list_data[4][current_selected[9]]["EN Recharge Delay"]) * (200 - int(self.list_data[1][current_selected[6]]["Generator Supply Adj"])) / 100)
+        recharge_delay_red = float(float(self.list_data[4][current_selected[9]]["Supply Recovery Delay"]) * (200 - int(self.list_data[1][current_selected[6]]["Generator Supply Adj"])) / 100)
         ap = int(self.list_data[0][current_selected[5]]["AP"]) + int(
             self.list_data[1][current_selected[6]]["AP"]) + int(
             self.list_data[2][current_selected[7]]["AP"]) + int(
@@ -204,6 +222,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.list_data[2][current_selected[7]]["Anti-Explosive Defense"]) + int(
             self.list_data[3][current_selected[8]]["Anti-Explosive Defense"])
         explosive_ehp = ap / ((2000 - explosive_def)/1000)
+        overall_ehp = (ap + kinetic_ehp + energy_ehp + explosive_ehp) / 4
         if option_list[0][current_selected[0]]["Recoil"] == "" or option_list[0][current_selected[0]]["Rapid Fire"] == "":
             recoil_right = "Unclear"
         else:
@@ -214,21 +233,152 @@ class Window(QMainWindow, Ui_MainWindow):
             recoil_left = str(float(option_list[1][current_selected[1]]["Recoil"]) * float(option_list[1][current_selected[1]]["Rapid Fire"]))
         energy_spec = int(self.list_data[4][current_selected[9]]["Energy Firearm Spec."])
         melee_spec = int(self.list_data[2][current_selected[7]]["Melee Specialization"])
-        firearm_spec = int(self.list_data[2][current_selected[7]]["Firearm Specialization"])
+        target_tracking = int(self.list_data[2][current_selected[7]]["Target Tracking"])
+        recoil_control = int(self.list_data[2][current_selected[7]]["Recoil Control"])
+        sys_recovery = int(self.list_data[0][current_selected[5]]["System Recovery"])
+        jump_height = int(self.list_data[3][current_selected[8]]["Jump Height"])
+        jump_dist = int(self.list_data[3][current_selected[8]]["Jump Distance"])
+        lock_close = (90 - (9 / 10 * float(option_list[4][current_selected[4]]["Close-Range Assist"]))) * (100 / float(self.list_data[2][current_selected[7]]["Target Tracking"]))
+        lock_mid = (90 - (9 / 10 * float(option_list[4][current_selected[4]]["Medium-Range Assist"]))) * (
+                    100 / float(self.list_data[2][current_selected[7]]["Target Tracking"]))
+        lock_far = (90 - (9 / 10 * float(option_list[4][current_selected[4]]["Long-Range Assist"]))) * (
+                    100 / float(self.list_data[2][current_selected[7]]["Target Tracking"]))
+        qb_cost = (float(self.list_data[5][current_selected[10]]["QB EN Consumption"]) / (float(self.list_data[1][current_selected[6]]["Booster Efficiency Adj."]) / 100))
+        ab_cost = (float(self.list_data[5][current_selected[10]]["AB EN Consumption"]) / (float(self.list_data[1][current_selected[6]]["Booster Efficiency Adj."]) / 100))
+
+        # Boost Speed:
+        if weight <= 40000:
+            weight_multi = 1
+        elif weight <= 62500:
+            weight_multi = (1 - (weight - 40000) * (30/9) * 10**(-6))
+        elif weight <= 75000:
+            weight_multi = (0.925 - (weight - 62500) * 0.000006)
+        elif weight <= 80000:
+            weight_multi = (0.85 - (weight - 75000) * 0.000015)
+        elif weight <= 120000:
+            weight_multi = (0.775 - (weight - 80000) * 0.000003125)
+        else:
+            weight_multi = 0.65
+
+        boost_speed = round(int(self.list_data[5][current_selected[10]]["Thrust"]) * 0.06 * weight_multi)
+
+        if weight <= 40000:
+            qb_weight_multi = 1
+        elif weight <= 62500:
+            qb_weight_multi = (1 - (weight - 40000) * (40/9) * 10**(-6))
+        elif weight <= 75000:
+            qb_weight_multi = (0.9 - (weight - 62500) * 0.000004)
+        elif weight <= 80000:
+            qb_weight_multi = (0.85 - (weight - 75000) * 0.00001)
+        elif weight <= 120000:
+            qb_weight_multi = (0.8 - (weight - 80000) * 0.0000025)
+        else:
+            qb_weight_multi = 0.7
+
+        ascent_speed = round(int(self.list_data[5][current_selected[10]]["Upward Thrust"]) * 0.06 * qb_weight_multi)
+        qb_speed = round(int(self.list_data[5][current_selected[10]]["QB Thrust"]) * 0.06 * qb_weight_multi)
+
+        if weight <= 40000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06)
+        elif weight <= 62500:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (1 - (weight - 40000) * (20/9) * 10**(-6)))
+        elif weight <= 75000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.925 - (weight - 62500) * 0.000008))
+        elif weight <= 80000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.85 - (weight - 75000) * 0.00002))
+        elif weight <= 120000:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * (0.775 - (weight - 80000) * 0.0000025))
+        else:
+            melee_lunge_speed = round(int(self.list_data[5][current_selected[10]]["Melee Attack Thrust"]) * 0.06 * 0.65)
+
+        if weight <= 40000:
+            ab_speed = round(int(self.list_data[5][current_selected[10]]["AB Thrust"]) * 0.06)
+        elif weight <= 50000:
+            ab_speed = round(int(self.list_data[5][current_selected[10]]["AB Thrust"]) * 0.06 * (1 - (weight - 40000) * 0.000005))
+        elif weight <= 75000:
+            ab_speed = round(int(self.list_data[5][current_selected[10]]["AB Thrust"]) * 0.06 * (0.95 - (weight - 50000) * 0.000002))
+        elif weight <= 100000:
+            ab_speed = round(int(self.list_data[5][current_selected[10]]["AB Thrust"]) * 0.06 * (0.9 - (weight - 75000) * 0.000008))
+        else:
+            ab_speed = round(int(self.list_data[5][current_selected[10]]["AB Thrust"]) * 0.06 * (0.7 - (weight - 100000) * 0.000003))
+
+        if weight <= 70000:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]))
+        elif weight <= 90000:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]) * (1 - (weight - 70000) * 0.000005))
+        elif weight <= 100000:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]) * (0.9 - (weight - 90000) * 0.000005))
+        elif weight <= 110000:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]) * (0.85 - (weight - 100000) * 0.00001))
+        elif weight <= 120000:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]) * (0.75 - (weight - 110000) * 0.000005))
+        else:
+            hover_speed = round(int(self.list_data[3][current_selected[8]]["Tetrapod Hover Speed"]) * 0.7)
+
+        if weight <= 50000:
+            tank_travel_multi = 1
+        elif weight <= 75000:
+            tank_travel_multi = 1 - (weight - 50000) * 0.000004
+        elif weight <= 100000:
+            tank_travel_multi = 0.9 - (weight - 75000) * 0.000002
+        elif weight <= 110000:
+            tank_travel_multi = 0.85 - (weight - 100000) * 0.0000025
+        elif weight <= 120000:
+            tank_travel_multi = 0.8 - (weight - 110000) * 0.000005
+        else:
+            tank_travel_multi = 0.7
+
+        tank_speed = round(int(self.list_data[5][current_selected[10]]["High-Speed Perf."]) * tank_travel_multi)
+
+        if weight <= 50000:
+            fortaleza_travel_multi = 1
+        elif weight <= 62500:
+            fortaleza_travel_multi = 1 - (weight - 50000) * 0.0000048
+        elif weight <= 75000:
+            fortaleza_travel_multi = 0.94 - (weight - 62500) * 0.0000064
+        elif weight <= 100000:
+            fortaleza_travel_multi = 0.86 - (weight - 75000) * 0.0000044
+        elif weight <= 150000:
+            fortaleza_travel_multi = 0.75 - (weight - 100000) * 0.000003
+        else:
+            fortaleza_travel_multi = 0.6
+
+        fortaleza_tank_speed = round(int(self.list_data[5][current_selected[10]]["High-Speed Perf."]) * fortaleza_travel_multi)
 
         self.out_AP.setText(str(ap))
         self.out_Attitude.setText(str(attitude))
         self.out_Weight.setText(str(weight))
         self.out_EN.setText(str(en_load) + " / " + str(en_load_max))
         self.out_EN_Cap.setText(str(en_capacity))
+        self.out_ENRecharge.setText(str(en_recharge))
+        self.out_RechargeDelay.setText(str(round(recharge_delay, 2)) + " seconds")
+        self.out_RechargeDelayRed.setText(str(round(recharge_delay_red, 2)) + " seconds")
         self.out_Kinetic.setText(str(round(kinetic_ehp)))
         self.out_Energy.setText(str(round(energy_ehp)))
         self.out_Explosive.setText(str(round(explosive_ehp)))
+        self.out_OverallEHP.setText(str(round(overall_ehp)))
         self.out_RecoilRight.setText(recoil_right)
         self.out_RecoilLeft.setText(recoil_left)
         self.out_EnergySpec.setText(str(energy_spec))
         self.out_MeleeSpec.setText(str(melee_spec))
-        self.out_FASpec.setText(str(firearm_spec))
+        self.out_RecoilCont.setText(str(recoil_control))
+        self.out_TargetTracking.setText(str(target_tracking))
+        self.out_SysRec.setText(str(sys_recovery))
+        self.out_JumpHeight.setText(str(jump_height))
+        self.out_JumpDist.setText(str(jump_dist))
+        self.out_LockClose.setText(str(round(lock_close / 60, 3)) + " seconds")
+        self.out_LockMid.setText(str(round(lock_mid / 60, 3)) + " seconds")
+        self.out_LockFar.setText(str(round(lock_far / 60, 3)) + " seconds")
+        self.out_BoostSpd.setText(str(boost_speed))
+        self.out_AscentSpd.setText(str(ascent_speed))
+        self.out_MeleeSpd.setText(str(melee_lunge_speed))
+        self.out_QBCost.setText(str(round(qb_cost)) + " / " + str(round(en_capacity / qb_cost, 2)) + " boosts")
+        self.out_ABSpd.setText(str(ab_speed))
+        self.out_ABCost.setText(str(round(ab_cost)) + " / " + str(round(en_capacity / ab_cost, 2)) + " seconds")
+        self.out_TetraSpd.setText(str(hover_speed))
+        self.out_TankSpd.setText(str(tank_speed))
+        if current_selected[10] == 14:
+            self.out_TankSpd.setText(str(fortaleza_tank_speed))
 
         return
 
@@ -350,6 +500,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self.OptiTargetSelect.addItems(["Maximise average EHP", "Maximise kinetic EHP", "Maximise energy EHP", "Maximise explosive EHP", "Maximise AP", "Maximise AS", "Minimise Weight", "Maximise Weight"])
         self.LegTypeSelect.addItems(["Any", "Biped", "Reverse Joint", "Quad", "Tank"])
+        self.GenTypeSelect.addItems(["Any", "Normal", "Coral"])
 
     def area_search_activate(self):
         if self.w is None:
