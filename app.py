@@ -73,6 +73,14 @@ class Window(QMainWindow, Ui_MainWindow):
         self.setWindowTitle("Armored Core VI - Optimizer")
         self.populate_lists(self.list_data, self.add_data)
         self.connectSignalSlots()
+        # Starting off with custom weight fields hidden:
+        self.as_weight.hide()
+        self.ehp_weight.hide()
+        self.as_weight_label.hide()
+        self.ehp_weight_label.hide()
+        # Default values for custom weights:
+        self.as_weight.setText("8")
+        self.ehp_weight.setText("1")
 
     def list_maker(self, add_data):
         weapon_list_l = add_data[0]
@@ -167,6 +175,9 @@ class Window(QMainWindow, Ui_MainWindow):
         selection_list.append(self.TravelSpdMin_line.text())
         selection_list.append(self.HoverSpdMin.isChecked())
         selection_list.append(self.HoverSpdMin_line.text())
+        # Adding custom target weights:
+        selection_list.append(self.ehp_weight.text())
+        selection_list.append(self.as_weight.text())
 
         return selection_list
 
@@ -420,6 +431,14 @@ class Window(QMainWindow, Ui_MainWindow):
 
             return self.opti_list
 
+    def show_custom_fields(self):
+        target = self.OptiTargetSelect.currentIndex()
+        if target == 8:
+            self.ehp_weight.show()
+            self.as_weight.show()
+            self.as_weight_label.show()
+            self.ehp_weight_label.show()
+
     def connectSignalSlots(self):
         self.actionExit.triggered.connect(self.close)
         self.actionOpti.triggered.connect(self.run_optimiser)
@@ -435,6 +454,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.Gen.currentIndexChanged.connect(self.set_stats)
         self.Boost.currentIndexChanged.connect(self.set_stats)
         self.actionAreaSearch.triggered.connect(self.area_search_activate)
+        self.actionCustomTarget.triggered.connect(self.show_custom_fields)
 
     def populate_lists(self, data, add_data):
         head_list = []
@@ -498,7 +518,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self.CoreExp.addItems(["Pulse Armour", "Pulse Protection", "Assault Armour", "Terminal Armour"])
 
-        self.OptiTargetSelect.addItems(["Maximise average EHP", "Maximise kinetic EHP", "Maximise energy EHP", "Maximise explosive EHP", "Maximise AP", "Maximise AS", "Minimise Weight", "Maximise Weight"])
+        self.OptiTargetSelect.addItems(["Maximise average EHP", "Maximise kinetic EHP", "Maximise energy EHP", "Maximise explosive EHP", "Maximise AP", "Maximise AS", "Minimise Weight", "Maximise Weight", "Custom EHP/AS mix"])
         self.LegTypeSelect.addItems(["Any", "Biped", "Reverse Joint", "Quad", "Tank"])
         self.GenTypeSelect.addItems(["Any", "Normal", "Coral"])
 

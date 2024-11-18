@@ -95,6 +95,14 @@ def ac6_opti(input_data, selection_list):
         selection_list[46] = 0
     hover_spd_enforce_no = int(selection_list[46])
 
+    # Custom target weights
+    if selection_list[47] == "":
+        selection_list[47] = 0
+    ehp_weight = int(selection_list[47])
+    if selection_list[48] == "":
+        selection_list[48] = 0
+    as_weight = int(selection_list[48])
+
     model = cp_model.CpModel()
     data_pd = pd.DataFrame.from_records(frame_data)
 
@@ -450,6 +458,14 @@ def ac6_opti(input_data, selection_list):
 
         model.Add(travel_spd_enforce_no * 100 <= 60 * tank_base_speed).OnlyEnforceIf(wb_under150.Not(), fortaleza)
 
+    # Custom target: Attitude Stability x EHP.
+    # Take inputs of ehp_weight and as_weight from user selection, inputs are already Int
+    # custom_target = model.NewIntVar(0, ehp_weight * as_weight * 24179 * 2677, 'custom_target')
+    # model.AddMultiplicationEquality(custom_target, [ehp_weight, as_weight, overall_ehp, data_pd['Attitude Stability'].dot(x)])
+    # Multiplicative objective doesn't work because of commutativity.
+    # Could do this via Cobb-Douglas form, but this solver doesn't support those sorts of constraints I think
+    custom_target = model.NewIntVar(0, ehp_weight * 24179 + 2677 * as_weight, 'custom_target')
+    model.Add(custom_target == ehp_weight * overall_ehp + as_weight * data_pd['Attitude Stability'].dot(x))
 
     # (1 - (weight - 40000) * (30/9) * 10**(-6))
     # Create objective function
@@ -462,13 +478,15 @@ def ac6_opti(input_data, selection_list):
     elif opti_target == 3:
         model.Maximize(explosive_ehp)
     elif opti_target == 4:
-        model.Maximize(data_pd["AP"].dot(x))
+        model.Maximize(data_pd['AP'].dot(x))
     elif opti_target == 5:
         model.Maximize(data_pd['Attitude Stability'].dot(x))
     elif opti_target == 6:
         model.Minimize(data_pd['Weight'].dot(x))
     elif opti_target == 7:
         model.Maximize(data_pd['Weight'].dot(x))
+    elif opti_target == 8:
+        model.Maximize(custom_target)
 
 
     # Instantiate model
