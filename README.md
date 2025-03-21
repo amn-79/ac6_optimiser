@@ -1,9 +1,12 @@
 # AC6 Optimiser
-Update version: Patch 1.07.1, App Ver 70
+Update version: Patch 1.08.1, App Ver 80
 
 With thanks to u/Quimperinos, whose AC6 Virtual Garage spreadsheet gave me the speed formulae, and u/TraumaHunter, who created the spreadsheet that my data is based on
 
 # Updates
+## 21/03/2025
+- Updated data files to new patch
+
 ## 16/11/2024
 - Updated data files to new patch
 - Added speed optimisation
