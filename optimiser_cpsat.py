@@ -160,6 +160,9 @@ def ac6_opti(input_data, selection_list):
     # Melee Spec Minimum
     if melee_spec_enforce:
         model.Add(data_pd["Melee Specialization"].dot(x) >= melee_spec_enforce_no)
+    # System Recovery Minimum
+    if sys_rec_enforce:
+        model.Add(data_pd["System Recovery"].dot(x) >= sys_rec_enforce_no)
 
     # Enforced leg type:
     if leg_type_force == "Biped":
@@ -201,7 +204,7 @@ def ac6_opti(input_data, selection_list):
 
     # Free EN Minimum
     if en_recharge_enforce:
-        model.Add(((4166 * (adj_output - (data_pd["EN Load"].dot(x) + weapon_en_load) * 100)) + 1500) >= en_recharge_enforce_no * 100000)
+        model.Add(((4166 * (adj_output - (data_pd["EN Load"].dot(x) + weapon_en_load) * 100)) + 1500 * 100000) >= en_recharge_enforce_no * 100000)
     # 4.166 * (en_load_max - en_load) + 1500
 
     # Restrict Tank legs and Boosters to only work together
@@ -320,26 +323,26 @@ def ac6_opti(input_data, selection_list):
     if boost_spd_enforce:
         model.Add(boost_spd_enforce_no <= base_speed).OnlyEnforceIf(wb_under40)
 
-        speed_mod_1 = model.NewIntVar(0, 100000000000000, 'speed_mod_1')
-        speed_boost_1 = model.NewIntVar(0, 100000000000000, 'speed_boost_1')
+        speed_mod_1 = model.NewIntVar(100000000000000, 100000000000000, 'speed_mod_1')
+        speed_boost_1 = model.NewIntVar(100000000000000, 100000000000000, 'speed_boost_1')
         model.Add(speed_mod_1 == (1 * 10**10 - (total_weight - 40000) * 33333))
         model.AddMultiplicationEquality(speed_boost_1, base_speed, speed_mod_1)
         model.Add(boost_spd_enforce_no * 10**10 <= speed_boost_1).OnlyEnforceIf(wb_under62, wb_under40.Not())
 
-        speed_mod_2 = model.NewIntVar(0, 100000000000000, 'speed_mod_2')
-        speed_boost_2 = model.NewIntVar(0, 100000000000000, 'speed_boost_2')
+        speed_mod_2 = model.NewIntVar(100000000000000, 100000000000000, 'speed_mod_2')
+        speed_boost_2 = model.NewIntVar(100000000000000, 100000000000000, 'speed_boost_2')
         model.Add(speed_mod_2 == (925 * 10**3 - (total_weight - 62500) * 6))
         model.AddMultiplicationEquality(speed_boost_2, base_speed, speed_mod_2)
         model.Add(boost_spd_enforce_no * 10 ** 6 <= speed_boost_2).OnlyEnforceIf(wb_under75, wb_under62.Not())
 
-        speed_mod_3 = model.NewIntVar(0, 100000000000000, 'speed_mod_3')
-        speed_boost_3 = model.NewIntVar(0, 100000000000000, 'speed_boost_3')
+        speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'speed_mod_3')
+        speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'speed_boost_3')
         model.Add(speed_mod_3 == (850 * 10**3 - (total_weight - 75000) * 15))
         model.AddMultiplicationEquality(speed_boost_3, base_speed, speed_mod_3)
         model.Add(boost_spd_enforce_no * 10 ** 6 <= speed_boost_3).OnlyEnforceIf(wb_under80, wb_under75.Not())
 
-        speed_mod_3 = model.NewIntVar(0, 100000000000000, 'speed_mod_3')
-        speed_boost_3 = model.NewIntVar(0, 100000000000000, 'speed_boost_3')
+        speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'speed_mod_3')
+        speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'speed_boost_3')
         model.Add(speed_mod_3 == (775 * 10 ** 6 - (total_weight - 80000) * 3125))
         model.AddMultiplicationEquality(speed_boost_3, base_speed, speed_mod_3)
         model.Add(boost_spd_enforce_no * 10 ** 9 <= speed_boost_3).OnlyEnforceIf(wb_under120, wb_under80.Not())
@@ -349,26 +352,26 @@ def ac6_opti(input_data, selection_list):
     if ab_spd_enforce:
         model.Add(ab_spd_enforce_no <= ab_base_speed).OnlyEnforceIf(wb_under40)
 
-        ab_speed_mod_1 = model.NewIntVar(0, 100000000000000, 'ab_speed_mod_1')
-        ab_speed_boost_1 = model.NewIntVar(0, 100000000000000, 'ab_speed_boost_1')
+        ab_speed_mod_1 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_mod_1')
+        ab_speed_boost_1 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_boost_1')
         model.Add(ab_speed_mod_1 == (1 * 10 ** 6 - (total_weight - 40000) * 5))
         model.AddMultiplicationEquality(ab_speed_boost_1, ab_base_speed, ab_speed_mod_1)
         model.Add(ab_spd_enforce_no * 10 ** 6 <= ab_speed_boost_1).OnlyEnforceIf(wb_under50, wb_under40.Not())
 
-        ab_speed_mod_2 = model.NewIntVar(0, 100000000000000, 'ab_speed_mod_2')
-        ab_speed_boost_2 = model.NewIntVar(0, 100000000000000, 'ab_speed_boost_2')
+        ab_speed_mod_2 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_mod_2')
+        ab_speed_boost_2 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_boost_2')
         model.Add(ab_speed_mod_2 == (950 * 10 ** 3 - (total_weight - 50000) * 2))
         model.AddMultiplicationEquality(ab_speed_boost_2, ab_base_speed, ab_speed_mod_2)
         model.Add(ab_spd_enforce_no * 10 ** 6 <= ab_speed_boost_2).OnlyEnforceIf(wb_under75, wb_under50.Not())
 
-        ab_speed_mod_3 = model.NewIntVar(0, 100000000000000, 'ab_speed_mod_3')
-        ab_speed_boost_3 = model.NewIntVar(0, 100000000000000, 'ab_speed_boost_3')
+        ab_speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_mod_3')
+        ab_speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_boost_3')
         model.Add(ab_speed_mod_3 == (900 * 10 ** 3 - (total_weight - 75000) * 8))
         model.AddMultiplicationEquality(ab_speed_boost_3, ab_base_speed, ab_speed_mod_3)
         model.Add(ab_spd_enforce_no * 10 ** 6 <= ab_speed_boost_3).OnlyEnforceIf(wb_under100, wb_under75.Not())
 
-        ab_speed_mod_4 = model.NewIntVar(0, 100000000000000, 'ab_speed_mod_4')
-        ab_speed_boost_4 = model.NewIntVar(0, 100000000000000, 'ab_speed_boost_4')
+        ab_speed_mod_4 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_mod_4')
+        ab_speed_boost_4 = model.NewIntVar(100000000000000, 100000000000000, 'ab_speed_boost_4')
         model.Add(ab_speed_mod_4 == (700 * 10 ** 3 - (total_weight - 100000) * 3))
         model.AddMultiplicationEquality(ab_speed_boost_4, ab_base_speed, ab_speed_mod_4)
         model.Add(ab_spd_enforce_no * 10 ** 6 <= ab_speed_boost_4).OnlyEnforceIf(wb_under100.Not())
@@ -376,20 +379,20 @@ def ac6_opti(input_data, selection_list):
     if hover_spd_enforce:
         model.Add(hover_spd_enforce_no <= hover_base_speed).OnlyEnforceIf(wb_under70)
 
-        hover_speed_mod_1 = model.NewIntVar(0, 100000000000000, 'hover_speed_mod_1')
-        hover_speed_boost_1 = model.NewIntVar(0, 100000000000000, 'hover_speed_boost_1')
+        hover_speed_mod_1 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_mod_1')
+        hover_speed_boost_1 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_boost_1')
         model.Add(hover_speed_mod_1 == (1 * 10 ** 6 - (total_weight - 70000) * 5))
         model.AddMultiplicationEquality(hover_speed_boost_1, hover_base_speed, hover_speed_mod_1)
         model.Add(hover_spd_enforce_no * 10 ** 6 <= hover_speed_boost_1).OnlyEnforceIf(wb_under100, wb_under70.Not())
 
-        hover_speed_mod_2 = model.NewIntVar(0, 100000000000000, 'hover_speed_mod_2')
-        hover_speed_boost_2 = model.NewIntVar(0, 100000000000000, 'hover_speed_boost_2')
+        hover_speed_mod_2 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_mod_2')
+        hover_speed_boost_2 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_boost_2')
         model.Add(hover_speed_mod_2 == (850 * 10 ** 3 - (total_weight - 100000) * 10))
         model.AddMultiplicationEquality(hover_speed_boost_2, hover_base_speed, hover_speed_mod_2)
         model.Add(hover_spd_enforce_no * 10 ** 6 <= hover_speed_boost_2).OnlyEnforceIf(wb_under110, wb_under100.Not())
 
-        hover_speed_mod_3 = model.NewIntVar(0, 100000000000000, 'hover_speed_mod_3')
-        hover_speed_boost_3 = model.NewIntVar(0, 100000000000000, 'hover_speed_boost_3')
+        hover_speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_mod_3')
+        hover_speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'hover_speed_boost_3')
         model.Add(hover_speed_mod_3 == (750 * 10 ** 3 - (total_weight - 110000) * 5))
         model.AddMultiplicationEquality(hover_speed_boost_3, hover_base_speed, hover_speed_mod_3)
         model.Add(hover_spd_enforce_no * 10 ** 6 <= hover_speed_boost_3).OnlyEnforceIf(wb_under120, wb_under110.Not())
@@ -404,26 +407,26 @@ def ac6_opti(input_data, selection_list):
 
         model.Add(travel_spd_enforce_no <= tank_base_speed).OnlyEnforceIf(wb_under50, fortaleza.Not())
 
-        tank_speed_mod_1 = model.NewIntVar(0, 100000000000000, 'tank_speed_mod_1')
-        tank_speed_boost_1 = model.NewIntVar(0, 100000000000000, 'tank_speed_boost_1')
+        tank_speed_mod_1 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_mod_1')
+        tank_speed_boost_1 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_boost_1')
         model.Add(tank_speed_mod_1 == (1 * 10 ** 6 - (total_weight - 50000) * 4))
         model.AddMultiplicationEquality(tank_speed_boost_1, tank_base_speed, tank_speed_mod_1)
         model.Add(travel_spd_enforce_no * 10 ** 6 <= tank_speed_boost_1).OnlyEnforceIf(wb_under75, wb_under50.Not(), fortaleza.Not())
 
-        tank_speed_mod_2 = model.NewIntVar(0, 100000000000000, 'tank_speed_mod_2')
-        tank_speed_boost_2 = model.NewIntVar(0, 100000000000000, 'tank_speed_boost_2')
+        tank_speed_mod_2 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_mod_2')
+        tank_speed_boost_2 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_boost_2')
         model.Add(tank_speed_mod_2 == (900 * 10 ** 3 - (total_weight - 75000) * 2))
         model.AddMultiplicationEquality(tank_speed_boost_2, tank_base_speed, tank_speed_mod_2)
         model.Add(travel_spd_enforce_no * 10 ** 6 <= tank_speed_boost_2).OnlyEnforceIf(wb_under100, wb_under75.Not(), fortaleza.Not())
 
-        tank_speed_mod_3 = model.NewIntVar(0, 100000000000000, 'tank_speed_mod_3')
-        tank_speed_boost_3 = model.NewIntVar(0, 100000000000000, 'tank_speed_boost_3')
+        tank_speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_mod_3')
+        tank_speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_boost_3')
         model.Add(tank_speed_mod_3 == (850 * 10 ** 4 - (total_weight - 100000) * 25))
         model.AddMultiplicationEquality(tank_speed_boost_3, tank_base_speed, tank_speed_mod_3)
         model.Add(travel_spd_enforce_no * 10 ** 7 <= tank_speed_boost_3).OnlyEnforceIf(wb_under110, wb_under100.Not(), fortaleza.Not())
 
-        tank_speed_mod_4 = model.NewIntVar(0, 100000000000000, 'tank_speed_mod_4')
-        tank_speed_boost_4 = model.NewIntVar(0, 100000000000000, 'tank_speed_boost_4')
+        tank_speed_mod_4 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_mod_4')
+        tank_speed_boost_4 = model.NewIntVar(100000000000000, 100000000000000, 'tank_speed_boost_4')
         model.Add(tank_speed_mod_4 == (800 * 10 ** 3 - (total_weight - 110000) * 5))
         model.AddMultiplicationEquality(tank_speed_boost_4, tank_base_speed, tank_speed_mod_4)
         model.Add(travel_spd_enforce_no * 10 ** 6 <= tank_speed_boost_4).OnlyEnforceIf(wb_under120, wb_under110.Not(), fortaleza.Not())
@@ -432,27 +435,27 @@ def ac6_opti(input_data, selection_list):
 
         model.Add(travel_spd_enforce_no <= tank_base_speed).OnlyEnforceIf(wb_under50, fortaleza)
 
-        fortaleza_speed_mod_1 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_mod_1')
-        fortaleza_speed_boost_1 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_boost_1')
+        fortaleza_speed_mod_1 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_mod_1')
+        fortaleza_speed_boost_1 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_boost_1')
         model.Add(fortaleza_speed_mod_1 == (1 * 10 ** 7 - (total_weight - 50000) * 48))
         model.AddMultiplicationEquality(fortaleza_speed_boost_1, tank_base_speed, fortaleza_speed_mod_1)
         model.Add(travel_spd_enforce_no * 10 ** 7 <= fortaleza_speed_boost_1).OnlyEnforceIf(wb_under62, wb_under50.Not(), fortaleza)
 
-        fortaleza_speed_mod_2 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_mod_2')
-        fortaleza_speed_boost_2 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_boost_2')
+        fortaleza_speed_mod_2 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_mod_2')
+        fortaleza_speed_boost_2 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_boost_2')
         model.Add(fortaleza_speed_mod_2 == (940 * 10 ** 4 - (total_weight - 62500) * 64))
         model.AddMultiplicationEquality(fortaleza_speed_boost_2, tank_base_speed, fortaleza_speed_mod_2)
         model.Add(travel_spd_enforce_no * 10 ** 7 <= fortaleza_speed_boost_2).OnlyEnforceIf(wb_under75, wb_under62.Not(), fortaleza)
 
-        fortaleza_speed_mod_3 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_mod_3')
-        fortaleza_speed_boost_3 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_boost_3')
+        fortaleza_speed_mod_3 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_mod_3')
+        fortaleza_speed_boost_3 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_boost_3')
         model.Add(fortaleza_speed_mod_3 == (860 * 10 ** 4 - (total_weight - 75000) * 44))
         model.AddMultiplicationEquality(fortaleza_speed_boost_3, tank_base_speed, fortaleza_speed_mod_3)
         model.Add(travel_spd_enforce_no * 10 ** 7 <= fortaleza_speed_boost_3).OnlyEnforceIf(wb_under100, wb_under75.Not(), fortaleza)
 
-        fortaleza_speed_mod_4 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_mod_4')
-        fortaleza_speed_boost_4 = model.NewIntVar(0, 100000000000000, 'fortaleza_speed_boost_4')
-        model.Add(fortaleza_speed_mod_4 == (750 * 10 ** 3 - (total_weight - 110000) * 3))
+        fortaleza_speed_mod_4 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_mod_4')
+        fortaleza_speed_boost_4 = model.NewIntVar(100000000000000, 100000000000000, 'fortaleza_speed_boost_4')
+        model.Add(fortaleza_speed_mod_4 == (750 * 10 ** 3 - (total_weight - 100000) * 3))
         model.AddMultiplicationEquality(fortaleza_speed_boost_4, tank_base_speed, fortaleza_speed_mod_4)
         model.Add(travel_spd_enforce_no * 10 ** 6 <= fortaleza_speed_boost_4).OnlyEnforceIf(wb_under150, wb_under100.Not(), fortaleza)
 
